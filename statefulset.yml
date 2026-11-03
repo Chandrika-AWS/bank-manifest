@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+
+metadata:
+  name: mysqldb
+
+spec:
+  serviceName: mysql-service
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: db
+
+  template:
+    metadata:
+      labels:
+        app: db
+
+    spec:
+      containers:
+        - name: db-cont
+          image: chandrika11499/k8project2:db-image
+
+          ports:
+            - containerPort: 3306
+
+          envFrom:
+            - secretRef:
+                name: banksecret
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+          volumeMounts:
+            - name: mysql-volume
+              mountPath: /var/lib/mysql
+
+  volumeClaimTemplates:
+    - metadata:
+        name: mysql-volume
+
+      spec:
+        accessModes:
+          - ReadWriteOnce
+
+        storageClassName: gp2
+
+        resources:
+          requests:
+            storage: 2Gi
+
+
+
+
+
+
